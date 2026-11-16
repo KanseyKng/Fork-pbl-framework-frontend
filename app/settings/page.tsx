@@ -2,15 +2,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
 import { useAuth } from "@/hooks/use-auth";
 import { authService } from "@/services/auth.service";
-import { tokenStorage } from "@/services/api-client";
+import SettingsForm from "./_components/SettingsForm";
+import ProfileCard from "./_components/ProfileCard";
 
 export default function SettingsPage() {
-  const router = useRouter();
   const { user, settings } = useAuth();
   const [form, setForm] = useState({ appName: "", businessName: "", description: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -34,27 +32,13 @@ export default function SettingsPage() {
         <div className="mb-6"><h1 className="text-2xl font-bold text-gray-900">Pengaturan Sistem</h1><p className="text-sm text-gray-500">Kelola konfigurasi aplikasi dan operasional Ikobana</p></div>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Informasi Aplikasi & Bisnis</h2>
-            <div className="space-y-4">
-              <div><label className="text-xs font-bold text-gray-700">Nama Aplikasi</label><input type="text" value={form.appName} onChange={(e) => setForm({...form, appName: e.target.value})} className="w-full mt-1 p-2.5 bg-gray-50 rounded-lg text-sm border border-gray-200" /></div>
-              <div><label className="text-xs font-bold text-gray-700">Nama Bisnis Resmi</label><input type="text" value={form.businessName} onChange={(e) => setForm({...form, businessName: e.target.value})} className="w-full mt-1 p-2.5 bg-gray-50 rounded-lg text-sm border border-gray-200" /></div>
-              <div><label className="text-xs font-bold text-gray-700">Deskripsi Toko</label><textarea rows={3} value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} className="w-full mt-1 p-2.5 bg-gray-50 rounded-lg text-sm border border-gray-200" /></div>
-              <div className="flex justify-end mt-4"><button onClick={handleSave} disabled={isLoading} className="bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg shadow-sm hover:bg-blue-700 disabled:opacity-50">{isLoading ? "Menyimpan..." : "Simpan Perubahan"}</button></div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Profil Akun Pengelola</h2>
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl mb-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">{user?.name ? user.name.substring(0, 2).toUpperCase() : "AD"}</div>
-                <div><p className="font-bold text-gray-900">{user?.name || "Administrator"}</p><p className="text-xs text-gray-500">{user?.email || "admin@ikobana.com"}</p></div>
-              </div>
-              <Link href="/settings/edit-profile" className="block w-full text-center bg-[#DEE8FF] text-[#111C2D] font-semibold py-2.5 rounded-lg hover:bg-blue-100">Edit Profil</Link>
-            </div>
-            <button onClick={() => { tokenStorage.clear(); router.push("/login"); }} className="w-full mt-6 bg-red-50 text-red-600 font-semibold py-3 rounded-xl hover:bg-red-100">Keluar dari Akun</button>
-          </div>
+          <SettingsForm 
+            form={form} 
+            setForm={setForm} 
+            handleSave={handleSave} 
+            isLoading={isLoading} 
+          />
+          <ProfileCard user={user} />
         </div>
       </main>
 
