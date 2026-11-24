@@ -35,10 +35,15 @@ export const tokenStorage = {
 // Fungsi helper untuk fetch dengan token otomatis
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const token = tokenStorage.getToken();
-  const headers = {
-    "Content-Type": "application/json",
+  
+  // Cek apakah body yang dikirim adalah FormData (untuk upload file)
+  const isFormData = options.body instanceof FormData;
+
+  const headers: Record<string, string> = {
+    // Hanya set application/json jika BUKAN FormData
+    ...(!isFormData ? { "Content-Type": "application/json" } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   // ✅ Fetch akan diarahkan ke proxy internal Next.js
