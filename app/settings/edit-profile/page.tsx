@@ -9,7 +9,7 @@ import EditProfileForm from "./_components/EditProfileForm";
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", photoUrl: "" });
   const [originalForm, setOriginalForm] = useState({ name: "", email: "", phone: "" });
   const [modal, setModal] = useState<{ type: "success" | "error"; msg?: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function EditProfilePage() {
     const fetchProfile = async () => {
       const res = await authService.getProfile();
       if (res.success) {
-        setForm(res.data);
+        setForm({ ...res.data, photoUrl: res.data.photoUrl || "" });
         setOriginalForm(res.data);
       }
     };
@@ -26,7 +26,7 @@ export default function EditProfilePage() {
   }, []);
 
   const handleSave = async () => {
-    if (JSON.stringify(form) === JSON.stringify(originalForm)) {
+    if (form.name === originalForm.name && form.email === originalForm.email && form.phone === originalForm.phone) {
       setModal({ type: "error", msg: "Tidak ada perubahan data." });
       return;
     }
@@ -37,29 +37,34 @@ export default function EditProfilePage() {
 
     if (res.success) {
       setModal({ type: "success" });
-      setOriginalForm(form);
+      setOriginalForm({ name: form.name, email: form.email, phone: form.phone });
       window.dispatchEvent(new Event("profileUpdated"));
     } else {
       setModal({ type: "error", msg: res.message });
     }
   };
 
+  const handleAvatarUpdate = (newPhotoUrl: string) => {
+    setForm({ ...form, photoUrl: newPhotoUrl });
+    window.dispatchEvent(new Event("profileUpdated"));
+  };
+
   return (
     <div className="flex min-h-screen bg-[#F9F9FF]">
       <Sidebar />
-      
       <main className="ml-[256px] flex-1 p-8">
         <div className="mb-6">
           <p className="text-xs text-gray-500 mb-1">Pengaturan Sistem / Edit Profil</p>
           <h1 className="text-2xl font-bold text-gray-900">Edit Profil</h1>
         </div>
 
-        <EditProfileForm 
+        <EditProfileForm
           form={form}
           setForm={setForm}
           handleSave={handleSave}
           isLoading={isLoading}
           router={router}
+          onAvatarUpdate={handleAvatarUpdate}
         />
       </main>
 
@@ -69,7 +74,7 @@ export default function EditProfilePage() {
             <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${modal.type === "success" ? "bg-blue-600" : "bg-red-600"}`}>{modal.type === "success" ? "✓" : "!"}</div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">{modal.type === "success" ? "Update Berhasil!" : "EROR"}</h2>
             {modal.type === "error" && <p className="text-xs text-gray-500 mb-6">{modal.msg}</p>}
-            <button onClick={() => { setModal(null); if(modal.type === "success") router.push("/settings"); }} className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl mt-2">Kembali</button>
+            <button onClick={() => { setModal(null); if (modal.type === "success") router.push("/settings"); }} className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl mt-2">Kembali</button>
           </div>
         </div>
       )}
