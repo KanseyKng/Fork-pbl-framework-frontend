@@ -12,8 +12,13 @@ interface TransactionDetailViewProps {
 }
 
 export default function TransactionDetailView({ transaction, status, setStatus, handleUpdateStatus }: TransactionDetailViewProps) {
-  let products = [];
-  try { products = JSON.parse(transaction.items || "[]"); } catch (e) { products = []; }
+  // ✅ PERBAIKAN: Safe parse items
+  let products: any[] = [];
+  try {
+    products = typeof transaction.items === 'string' 
+      ? JSON.parse(transaction.items || "[]") 
+      : (transaction.items as any) || [];
+  } catch (e) { products = []; }
 
   return (
     <div className="p-8">
@@ -41,9 +46,25 @@ export default function TransactionDetailView({ transaction, status, setStatus, 
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
         <h3 className="font-bold text-gray-900 mb-4">Produk yang Dibeli</h3>
         {products.length === 0 ? <p className="text-sm text-gray-500">Tidak ada data produk.</p> : (
-          <div className="space-y-4">{products.map((product: any, index: number) => (
-            <div key={index} className="flex justify-between items-center border-b pb-4 last:border-0 last:pb-0"><div className="flex items-center gap-4"><div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">🍗</div><div><strong className="text-gray-900">{product.productName}</strong><p className="text-sm text-gray-500">{product.qty} × {product.price}</p></div></div><strong className="text-gray-900">{product.price}</strong></div>
-          ))}</div>
+          <div className="space-y-4">{products.map((product: any, index: number) => {
+            // ✅ PERBAIKAN: Antisipasi nama key
+            const name = product.productName || product.product_name || product.name || "Produk Tanpa Nama";
+            const qty = product.qty || product.quantity || 1;
+            const price = product.price || 0;
+
+            return (
+              <div key={index} className="flex justify-between items-center border-b pb-4 last:border-0 last:pb-0">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">🍗</div>
+                  <div>
+                    <strong className="text-gray-900">{name}</strong>
+                    <p className="text-sm text-gray-500">{qty} × Rp {price.toLocaleString("id-ID")}</p>
+                  </div>
+                </div>
+                <strong className="text-gray-900">Rp {(price * qty).toLocaleString("id-ID")}</strong>
+              </div>
+            );
+          })}</div>
         )}
       </div>
 
