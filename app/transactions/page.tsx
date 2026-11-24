@@ -16,16 +16,7 @@ export default function TransactionsPage() {
   const [newStatus, setNewStatus] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const getValidImageUrl = (url: string) => {
-    if (!url) return "";
-    const newApiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-    const baseUrl = newApiUrl.replace("/api", "");
-    return url
-      .replace("http://localhost:5000", baseUrl)
-      .replace("http://192.168.1.129:5000", baseUrl)
-      .replace("http://10.200.118.253:5000", baseUrl)
-      .replace("http://10.200.116.23:5000", baseUrl);
-  };
+  const getValidImageUrl = (url: string) => url || "";
 
   const handleUpdateStatus = async () => {
     if (!statusTarget) return;
@@ -36,7 +27,7 @@ export default function TransactionsPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await transactionService.delete(deleteTarget.id);
+    await transactionService.delete(deleteTarget.id); 
     setIsDeleteSuccess(true);
     setDeleteTarget(null);
     refresh();
@@ -50,9 +41,28 @@ export default function TransactionsPage() {
     return "bg-orange-100 text-orange-700";
   };
 
-  const parseItems = (itemsString: string) => {
-    try { return JSON.parse(itemsString).map((i: any) => `${i.productName} (${i.qty}x)`).join(", "); }
-    catch { return "-"; }
+  // ✅ PERBAIKAN TOTAL: Membaca items dengan aman (String / Array)
+  const parseItems = (itemsData: any) => {
+    if (!itemsData) return "-";
+    
+    let items = [];
+    try {
+      // Cek jika items berupa string JSON, jika sudah array langsung pakai
+      items = typeof itemsData === 'string' ? JSON.parse(itemsData) : itemsData;
+      
+      if (Array.isArray(items)) {
+        return items.map((i: any) => {
+          // Antisipasi perbedaan nama key dari backend
+          const productName = i.productName || i.product_name || i.name || "Produk Tidak Dikenal";
+          const qty = i.qty || i.quantity || 1;
+          return `${productName} (${qty}x)`;
+        }).join(", ");
+      }
+      return "-";
+    } catch (e) {
+      console.error("Gagal parse items:", e);
+      return "-";
+    }
   };
 
   return (
@@ -60,10 +70,13 @@ export default function TransactionsPage() {
       <Sidebar />
       <main className="ml-[256px] flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
-          <div><h1 className="text-2xl font-bold text-gray-900">Monitoring Transaksi</h1><p className="text-sm text-gray-500">Pantau seluruh transaksi yang masuk ke Ikobana Frozen Food</p></div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Monitoring Transaksi</h1>
+            <p className="text-sm text-gray-500">Pantau seluruh transaksi yang masuk ke Ikobana Frozen Food</p>
+          </div>
         </div>
 
-        <TransactionTable 
+        <TransactionTable
           transactions={transactions}
           setImagePreview={setImagePreview}
           setStatusTarget={setStatusTarget}
@@ -75,7 +88,7 @@ export default function TransactionsPage() {
         />
       </main>
 
-      <TransactionModals 
+      <TransactionModals
         imagePreview={imagePreview}
         setImagePreview={setImagePreview}
         statusTarget={statusTarget}
@@ -91,4 +104,51 @@ export default function TransactionsPage() {
       />
     </div>
   );
-}
+} 
+`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+`
