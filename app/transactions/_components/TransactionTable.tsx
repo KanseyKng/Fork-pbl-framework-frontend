@@ -9,7 +9,7 @@ interface TransactionTableProps {
   setDeleteTarget: (trx: any) => void;
   getValidImageUrl: (url: string) => string;
   getStatusStyle: (status: string) => string;
-  parseItems: (itemsString: string) => string;
+  parseItems: (itemsData: any) => string; // ✅ Ubah tipe menjadi any
 }
 
 export default function TransactionTable({
@@ -33,28 +33,41 @@ export default function TransactionTable({
           {transactions.length === 0 ? (
             <tr><td colSpan={7} className="p-8 text-center text-gray-500">Belum ada transaksi masuk.</td></tr>
           ) : (
-            transactions.map((trx: any) => (
-              <tr key={trx.id} className="border-b border-gray-50 hover:bg-gray-50">
-                <td className="p-4"><p className="font-bold text-blue-600">{trx.orderId}</p><p className="text-xs text-gray-500">{new Date(trx.createdAt).toLocaleDateString("id-ID")}</p></td>
-                <td className="p-4"><p className="font-semibold text-gray-800">{trx.customerName}</p><p className="text-xs text-gray-500">{trx.customerPhone}</p></td>
-                <td className="p-4 text-xs text-gray-600 max-w-[200px] truncate" title={parseItems(trx.items)}>{parseItems(trx.items)}</td>
-                <td className="p-4 font-bold text-gray-900">Rp {trx.totalPrice.toLocaleString("id-ID")}</td>
-                <td className="p-4 text-center">
-                  {trx.paymentProof ? (
-                    <div className="relative w-12 h-12 mx-auto cursor-pointer group" onClick={() => setImagePreview(getValidImageUrl(trx.paymentProof))}>
-                      <img src={getValidImageUrl(trx.paymentProof)} alt="Bukti" className="w-full h-full object-cover rounded-md border border-gray-200 group-hover:opacity-75 transition" />
+            transactions.map((trx: any) => {
+              const displayName = trx.user?.name || trx.customerName || "Tanpa Nama";
+              const displayPhone = trx.customerPhone || "-";
+
+              return (
+                <tr key={trx.id} className="border-b border-gray-50 hover:bg-gray-50">
+                  <td className="p-4">
+                    <p className="font-bold text-blue-600">{trx.orderId}</p>
+                    <p className="text-xs text-gray-500">{new Date(trx.createdAt).toLocaleDateString("id-ID")}</p>
+                  </td>
+                  <td className="p-4">
+                    <p className="font-semibold text-gray-800">{displayName}</p>
+                    <p className="text-xs text-gray-500">{displayPhone}</p>
+                  </td>
+                  <td className="p-4 text-xs text-gray-600 max-w-[200px] truncate" title={parseItems(trx.items)}>
+                    {parseItems(trx.items)}
+                  </td>
+                  <td className="p-4 font-bold text-gray-900">Rp {trx.totalPrice.toLocaleString("id-ID")}</td>
+                  <td className="p-4 text-center">
+                    {trx.paymentProof ? (
+                      <div className="relative w-12 h-12 mx-auto cursor-pointer group" onClick={() => setImagePreview(getValidImageUrl(trx.paymentProof))}>
+                        <img src={getValidImageUrl(trx.paymentProof)} alt="Bukti" className="w-full h-full object-cover rounded-md border border-gray-200 group-hover:opacity-75 transition" />
+                      </div>
+                    ) : (<span className="text-xs text-gray-400 italic">-</span>)}
+                  </td>
+                  <td className="p-4"><span className={`px-2 py-1 rounded text-[10px] font-bold ${getStatusStyle(trx.status)}`}>{trx.status}</span></td>
+                  <td className="p-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <button onClick={() => { setStatusTarget(trx); setNewStatus(trx.status); }} className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200">Ubah Status</button>
+                      <button onClick={() => setDeleteTarget(trx)} className="text-red-600 text-xs font-bold hover:underline">Batalkan</button>
                     </div>
-                  ) : (<span className="text-xs text-gray-400 italic">-</span>)}
-                </td>
-                <td className="p-4"><span className={`px-2 py-1 rounded text-[10px] font-bold ${getStatusStyle(trx.status)}`}>{trx.status}</span></td>
-                <td className="p-4">
-                  <div className="flex items-center justify-center gap-2">
-                    <button onClick={() => { setStatusTarget(trx); setNewStatus(trx.status); }} className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200">Ubah Status</button>
-                    <button onClick={() => setDeleteTarget(trx)} className="text-red-600 text-xs font-bold hover:underline">Hapus</button>
-                  </div>
-                </td>
-              </tr>
-            ))
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
