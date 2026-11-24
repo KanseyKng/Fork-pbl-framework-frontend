@@ -15,11 +15,17 @@ export default function Sidebar() {
 
   useEffect(() => {
     setUser(tokenStorage.getUser());
+    
     const loadUnread = async () => {
       const res = await notificationService.getUnreadCount();
       if (res.success) setUnreadCount(res.data.count);
     };
+
+    // Ambil data pertama kali
     loadUnread();
+
+    // ✅ PERBAIKAN: Polling setiap 10 detik agar badge otomatis update
+    const interval = setInterval(loadUnread, 10000);
 
     const handleUpdate = () => {
       setUser(tokenStorage.getUser());
@@ -27,7 +33,9 @@ export default function Sidebar() {
     };
     window.addEventListener("profileUpdated", handleUpdate);
     window.addEventListener("notificationUpdated", handleUpdate);
+    
     return () => {
+      clearInterval(interval); // Bersihkan interval
       window.removeEventListener("profileUpdated", handleUpdate);
       window.removeEventListener("notificationUpdated", handleUpdate);
     };
