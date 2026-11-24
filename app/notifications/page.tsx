@@ -14,15 +14,25 @@ export default function NotificationsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Semua");
   const [search, setSearch] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(""); // Kosong = Semua data
   const [page, setPage] = useState(1);
   const perPage = 4;
+
+  let startDate = undefined;
+  let endDate = undefined;
+  
+  if (selectedMonth) {
+    const [year, month] = selectedMonth.split("-").map(Number);
+    startDate = `${selectedMonth}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    endDate = `${selectedMonth}-${lastDay.toString().padStart(2, '0')}`;
+  }
 
   const { notifications, unreadCount, refresh } = useNotifications({
     category: activeTab === "Semua" ? undefined : activeTab,
     search,
-    startDate: selectedMonth ? `${selectedMonth}-01` : undefined,
-    endDate: selectedMonth ? `${selectedMonth}-31` : undefined,
+    startDate: startDate,
+    endDate: endDate,
   });
 
   const handleClick = async (notif: any) => {
