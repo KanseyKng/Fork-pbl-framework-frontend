@@ -103,12 +103,20 @@ export default function DashboardPage() {
     refreshProducts();
   };
 
+  // ✅ PERBAIKAN: Membaca productName dengan benar dan menangani jika kosong
   const parseProductNames = (itemsString: string) => {
     try {
       const items = JSON.parse(itemsString);
-      if (Array.isArray(items)) return items.map((item: any) => item.productName).join(", ");
-    } catch (e) { return itemsString; }
-    return "-";
+      if (Array.isArray(items)) {
+        return items.map((item: any) => {
+          const name = item.productName || item.name || "Produk Tanpa Nama";
+          return `${name} (${item.qty || 1}x)`;
+        }).join(", ");
+      }
+      return "-";
+    } catch (e) {
+      return "-";
+    }
   };
 
   const formatRupiah = (value: number) => "Rp " + value.toLocaleString("id-ID");
