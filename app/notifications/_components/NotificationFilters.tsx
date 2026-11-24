@@ -30,7 +30,8 @@ export default function NotificationFilters({
           <input type="month" value={selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value); setPage(1); }} className="p-2.5 border rounded-xl text-sm w-48 text-transparent absolute inset-0 cursor-pointer z-10 opacity-0" />
           <div className="p-2.5 border rounded-xl text-sm w-48 bg-white flex items-center justify-between"><span className="text-gray-700 font-medium truncate">{formatMonthDisplay(selectedMonth)}</span><span className="text-gray-400">📅</span></div>
         </div>
-        <button onClick={() => { setSearch(""); setSelectedMonth(""); }} className="text-sm font-semibold text-indigo-600">Reset</button>
+        {/* ✅ PERBAIKAN: Tambahkan setPage(1) saat reset filter */}
+        <button onClick={() => { setSearch(""); setSelectedMonth(""); setPage(1); }} className="text-sm font-semibold text-indigo-600 hover:text-indigo-800">Reset</button>
         <button onClick={handleMarkAllRead} className="ml-auto text-sm font-semibold text-gray-600 hover:text-indigo-600">Tandai Semua Dibaca</button>
       </div>
     </div>
