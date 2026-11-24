@@ -1,7 +1,8 @@
 // services/api-client.ts
 import { User } from "@/types";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// ✅ Ubah API_URL agar mengarah ke proxy internal Next.js
+export const API_URL = '/api-proxy';
 
 export const tokenStorage = {
   save(token: string, user: User) {
@@ -40,6 +41,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     ...options.headers,
   };
 
+  // ✅ Fetch akan diarahkan ke proxy internal Next.js
   const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   return res;
 }
