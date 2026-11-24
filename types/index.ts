@@ -6,6 +6,7 @@ export interface User {
   email: string;
   phone: string;
   role: "USER" | "ADMIN";
+  photoUrl?: string;
 }
 
 export interface Product {
@@ -31,20 +32,26 @@ export interface OrderItem {
 export interface Transaction {
   id: string;
   orderId: string;
+  userId: string;
   customerName: string;
   customerPhone: string;
   customerAddress: string;
-  items: string; // JSON string dari backend
+  items: string;
   totalPrice: number;
   paymentMethod: string;
   paymentProof?: string;
   status: string;
   createdAt: string;
   updatedAt: string;
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface Notification {
   id: string;
+  userId: string;
   title: string;
   message: string;
   category: "Pesanan" | "Pengiriman" | "Stok Produk" | "Sistem";
