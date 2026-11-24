@@ -22,31 +22,54 @@ export default function EditProfileForm({ form, setForm, handleSave, isLoading, 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-    const res = await authService.uploadAvatar(file);
-    setIsUploading(false);
+    // Validasi ukuran file (Maksimal 5MB) sebelum dikirim ke server
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran file terlalu besar. Maksimal 5MB.");
+      if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input
+      return;
+    }
 
-    if (res.success) {
-      onAvatarUpdate(res.data.photoUrl);
-      setForm({ ...form, photoUrl: res.data.photoUrl });
-      alert("Foto profil berhasil diperbarui!");
-    } else {
-      alert(res.message || "Gagal mengunggah foto");
+    setIsUploading(true);
+    
+    try {
+      const res = await authService.uploadAvatar(file);
+      
+      if (res.success) {
+        onAvatarUpdate(res.data.photoUrl);
+        setForm({ ...form, photoUrl: res.data.photoUrl });
+        alert("Foto profil berhasil diperbarui!");
+      } else {
+        alert(res.message || "Gagal mengunggah foto");
+      }
+    } catch (error: any) {
+      console.error("Detail Error Upload:", error);
+      alert("Terjadi kesalahan sistem atau koneksi saat mengunggah foto.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input agar bisa upload file yang sama
     }
   };
 
   const handleDeleteAvatar = async () => {
     if (!confirm("Hapus foto profil?")) return;
+    
     setIsUploading(true);
-    const res = await authService.deleteAvatar();
-    setIsUploading(false);
-
-    if (res.success) {
-      onAvatarUpdate("");
-      setForm({ ...form, photoUrl: "" });
-      alert("Foto profil berhasil dihapus!");
-    } else {
-      alert(res.message || "Gagal menghapus foto");
+    
+    try {
+      const res = await authService.deleteAvatar();
+      
+      if (res.success) {
+        onAvatarUpdate("");
+        setForm({ ...form, photoUrl: "" });
+        alert("Foto profil berhasil dihapus!");
+      } else {
+        alert(res.message || "Gagal menghapus foto");
+      }
+    } catch (error: any) {
+      console.error("Detail Error Hapus Avatar:", error);
+      alert("Terjadi kesalahan sistem saat menghapus foto.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -70,7 +93,7 @@ export default function EditProfileForm({ form, setForm, handleSave, isLoading, 
             <button
               onClick={handleDeleteAvatar}
               disabled={isUploading}
-              className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold hover:bg-red-600"
+              className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold hover:bg-red-600 disabled:opacity-50"
               title="Hapus foto"
             >
               ✕
@@ -78,8 +101,18 @@ export default function EditProfileForm({ form, setForm, handleSave, isLoading, 
           )}
         </div>
 
-        <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" className="hidden" />
-        <button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="mt-4 text-sm font-semibold text-blue-600 hover:underline disabled:opacity-50">
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileSelect} 
+          accept="image/*" 
+          className="hidden" 
+        />
+        <button 
+          onClick={() => fileInputRef.current?.click()} 
+          disabled={isUploading} 
+          className="mt-4 text-sm font-semibold text-blue-600 hover:underline disabled:opacity-50"
+        >
           {isUploading ? "Mengunggah..." : "Ubah Foto Profil"}
         </button>
       </div>
