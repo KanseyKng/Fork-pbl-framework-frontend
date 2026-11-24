@@ -1,40 +1,50 @@
-// app/api-proxy/[...path]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
 async function handler(req: NextRequest) {
-  // Ambil URL backend dari environment variable
   const backendUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!backendUrl) {
-    return new NextResponse('Backend API URL is not configured.', { status: 500 });
+    return new NextResponse(JSON.stringify({ success: false, message: 'Backend API URL is not configured.' }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
 
-  // Rekonstruksi path dan query params
   const requestedPath = req.nextUrl.pathname.replace(/^\/api-proxy/, '');
   const targetUrl = `${backendUrl}${requestedPath}${req.nextUrl.search}`;
 
-  // Clone headers dan tambahkan header wajib untuk Ngrok
   const headers = new Headers(req.headers);
   headers.set('host', new URL(targetUrl).host);
-  headers.set('ngrok-skip-browser-warning', 'true'); // ✅ Kunci untuk melewati peringatan Ngrok
-  headers.set('Connection', 'keep-alive');
-
-  // Ambil body untuk request non-GET
-  const body = req.method !== 'GET' && req.method !== 'HEAD' ? await req.blob() : undefined;
+  headers.set('ngrok-skip-browser-warning', 'true');
+  
+  // PENTING: Hapus header content-length karena Next.js akan menghitung ulang
+  // dan hapus accept-encoding agar tidak terjadi error decoding (seperti masalah login sebelumnya)
+  headers.delete('content-length');
+  headers.delete('accept-encoding');
 
   try {
-    // Lakukan request dari server Next.js ke Ngrok
+    // Gunakan req.body langsung, JANGAN req.blob() atau req.json()
+    // Ini agar FormData (multipart) tetap utuh saat diteruskan ke backend
     const response = await fetch(targetUrl, {
       method: req.method,
       headers: headers,
-      body: body,
+      body: req.body,
+      // @ts-ignore (Diperlukan di Next.js untuk streaming body)
+      duplex: 'half', 
       redirect: 'follow',
     });
 
-    // Kembalikan response ke browser
-    return response;
+    // Teruskan response apa adanya kembali ke browser
+    return new NextResponse(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
   } catch (error) {
     console.error('API proxy error:', error);
-    return new NextResponse('Proxy request failed.', { status: 502 });
+    return new NextResponse(JSON.stringify({ success: false, message: 'Proxy request failed.' }), { 
+      status: 502,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
