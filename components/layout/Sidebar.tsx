@@ -21,10 +21,7 @@ export default function Sidebar() {
       if (res.success) setUnreadCount(res.data.count);
     };
 
-    // Ambil data pertama kali
     loadUnread();
-
-    // ✅ PERBAIKAN: Polling setiap 10 detik agar badge otomatis update
     const interval = setInterval(loadUnread, 10000);
 
     const handleUpdate = () => {
@@ -35,7 +32,7 @@ export default function Sidebar() {
     window.addEventListener("notificationUpdated", handleUpdate);
     
     return () => {
-      clearInterval(interval); // Bersihkan interval
+      clearInterval(interval); 
       window.removeEventListener("profileUpdated", handleUpdate);
       window.removeEventListener("notificationUpdated", handleUpdate);
     };
@@ -48,6 +45,8 @@ export default function Sidebar() {
     { name: "Notifikasi", path: "/notifications", badge: unreadCount },
     { name: "Pengaturan Sistem", path: "/settings" },
   ];
+
+  const initials = user?.name ? user.name.substring(0, 2).toUpperCase() : "AD";
 
   return (
     <aside className="w-[256px] h-screen bg-white border-r border-gray-200 flex flex-col justify-between fixed left-0 top-0 z-10">
@@ -69,11 +68,16 @@ export default function Sidebar() {
       </div>
       <div className="p-4 border-t border-gray-100">
         <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-xl">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-            {user?.name ? user.name.substring(0, 2).toUpperCase() : "AD"}
+          {/* PERBAIKAN: Menampilkan foto profil jika ada, jika tidak tampilkan inisial */}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold overflow-hidden">
+            {user?.photoUrl ? (
+              <img src={user.photoUrl} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span>{initials}</span>
+            )}
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-gray-800">{user?.name || "Administrator"}</p>
+          <div className="flex-1 overflow-hidden">
+            <p className="text-sm font-bold text-gray-800 truncate">{user?.name || "Administrator"}</p>
             <p className="text-[10px] font-semibold text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded inline-block">{user?.role === "ADMIN" ? "Super Admin" : "User"}</p>
           </div>
           <button onClick={() => { tokenStorage.clear(); router.push("/login"); }} className="text-gray-400 hover:text-red-500">
