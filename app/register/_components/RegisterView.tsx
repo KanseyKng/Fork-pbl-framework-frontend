@@ -12,6 +12,7 @@ export default function RegisterView() {
   const [form, setForm] = useState({ name: "", phone: "", email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State untuk toggle password
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +43,22 @@ export default function RegisterView() {
           <div className="col-span-1"><label className="text-xs font-semibold text-gray-700">Nama Lengkap Pemilik</label><input type="text" required className="w-full mt-1 p-2.5 bg-[#F0F3FF] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Siti Rahmawati" onChange={(e) => setForm({...form, name: e.target.value})} /></div>
           <div className="col-span-1"><label className="text-xs font-semibold text-gray-700">Nomor WhatsApp Aktif</label><input type="text" required className="w-full mt-1 p-2.5 bg-[#F0F3FF] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+62 812-8921-3340" onChange={(e) => setForm({...form, phone: e.target.value})} /></div>
           <div className="col-span-2"><label className="text-xs font-semibold text-gray-700">Email Bisnis / Akun Utama</label><input type="email" required className="w-full mt-1 p-2.5 bg-[#F0F3FF] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="siti@ikobana.com" onChange={(e) => setForm({...form, email: e.target.value})} /></div>
-          <div className="col-span-2"><label className="text-xs font-semibold text-gray-700">Kata Sandi</label><input type="password" required className="w-full mt-1 p-2.5 bg-[#F0F3FF] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••" onChange={(e) => setForm({...form, password: e.target.value})} /></div>
+          
+          <div className="col-span-2">
+            <label className="text-xs font-semibold text-gray-700">Kata Sandi</label>
+            <div className="relative mt-1">
+              <input type={showPassword ? "text" : "password"} required className="w-full p-2.5 bg-[#F0F3FF] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" placeholder="••••••••" onChange={(e) => setForm({...form, password: e.target.value})} />
+              {/* PERBAIKAN: Ikon Mata Modern untuk Register */}
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                )}
+              </button>
+            </div>
+          </div>
+
           <div className="col-span-2 flex items-start gap-2 mt-2"><input type="checkbox" required className="mt-1" /><p className="text-xs text-gray-600">Saya menyetujui <span className="text-blue-600 font-semibold">Syarat & Ketentuan</span> serta Standar Penanganan Rantai Dingin LOCALMART.</p></div>
           <button type="submit" disabled={isLoading} className="col-span-2 bg-[#004AC6] text-white font-bold text-sm py-3.5 rounded-xl mt-4 hover:bg-blue-700 transition">{isLoading ? "Memproses..." : "Daftar & Buat Akun Toko Sekarang →"}</button>
         </form>
