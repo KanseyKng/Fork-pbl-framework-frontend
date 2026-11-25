@@ -52,29 +52,32 @@ export default function EditProfilePage() {
   return (
     <div className="flex min-h-screen bg-[#F9F9FF]">
       <Sidebar />
-      <main className="ml-[256px] flex-1 p-8">
-        <div className="mb-6">
+      {/* Menggunakan flex-col dan items-center agar konten ke tengah */}
+      <main className="ml-[256px] flex-1 p-8 flex flex-col items-center">
+        <div className="w-full max-w-2xl mb-6">
           <p className="text-xs text-gray-500 mb-1">Pengaturan Sistem / Edit Profil</p>
           <h1 className="text-2xl font-bold text-gray-900">Edit Profil</h1>
         </div>
 
-        <EditProfileForm
-          form={form}
-          setForm={setForm}
-          handleSave={handleSave}
-          isLoading={isLoading}
-          router={router}
-          onAvatarUpdate={handleAvatarUpdate}
-        />
+        <div className="w-full max-w-2xl">
+          <EditProfileForm
+            form={form}
+            setForm={setForm}
+            handleSave={handleSave}
+            isLoading={isLoading}
+            router={router}
+            onAvatarUpdate={handleAvatarUpdate}
+          />
+        </div>
       </main>
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-[340px] flex flex-col items-center text-center">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${modal.type === "success" ? "bg-blue-600" : "bg-red-600"}`}>{modal.type === "success" ? "✓" : "!"}</div>
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${modal.type === "success" ? "bg-blue-600" : "bg-red-600"} text-white text-2xl font-bold`}>{modal.type === "success" ? "✓" : "!"}</div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">{modal.type === "success" ? "Update Berhasil!" : "EROR"}</h2>
             {modal.type === "error" && <p className="text-xs text-gray-500 mb-6">{modal.msg}</p>}
-            <button onClick={() => { setModal(null); if (modal.type === "success") router.push("/settings"); }} className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl mt-2">Kembali</button>
+            <button onClick={() => { setModal(null); if (modal.type === "success") router.push("/settings"); }} className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl mt-2 hover:bg-blue-700 transition">Kembali</button>
           </div>
         </div>
       )}
