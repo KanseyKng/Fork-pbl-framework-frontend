@@ -22,10 +22,9 @@ export default function EditProfileForm({ form, setForm, handleSave, isLoading, 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validasi ukuran file (Maksimal 5MB) sebelum dikirim ke server
     if (file.size > 5 * 1024 * 1024) {
       alert("Ukuran file terlalu besar. Maksimal 5MB.");
-      if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input
+      if (fileInputRef.current) fileInputRef.current.value = ""; 
       return;
     }
 
@@ -46,7 +45,7 @@ export default function EditProfileForm({ form, setForm, handleSave, isLoading, 
       alert("Terjadi kesalahan sistem atau koneksi saat mengunggah foto.");
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input agar bisa upload file yang sama
+      if (fileInputRef.current) fileInputRef.current.value = ""; 
     }
   };
 
@@ -76,7 +75,7 @@ export default function EditProfileForm({ form, setForm, handleSave, isLoading, 
   const initials = form.name ? form.name.substring(0, 2).toUpperCase() : "AD";
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 max-w-2xl">
+    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 w-full">
       <div className="flex flex-col items-center mb-8">
         <div className="relative">
           <div
